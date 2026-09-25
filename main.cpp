@@ -36,11 +36,16 @@ while (sensitivity >= 1 || sensitivity <=0) {
 }
 
 std::cout << "Color sensitivity set to " << sensitivity*100 << "%\n";
+
+do {
 std::cout << "What color blindness type are we testing for?\n 1 - Red-Green or Green-Red\n 2 - Blue-Yellow\n";
 std::cin >> CBType;
+} while (CBType != 1 && CBType != 2);
 
+do {
 std::cout << "Now we'll enter the colors, are we using sRGB or Hex?\n1 - sRGB\n2 - Hex\n";
 std::cin >> InputType;
+} while (InputType != 1 && InputType != 2);
 
 switch (InputType) {
     //sRGB
@@ -64,7 +69,7 @@ switch (InputType) {
             break;
             //sRGB - Blue-Yellow 
             case 2:
-            std::cout << "Inorder to test compatability for Red-Green color-blindness we will only examine the Red and Green Axes:\n";
+            std::cout << "Inorder to test compatability for Blue-Yellow color-blindness we will only examine the Red and Green Axes:\n";
             if (std::abs(sr1-sr2)>=255*sensitivity || std::abs(sg1-sg2)>=255*sensitivity || (std::abs(sr1-sr2)+std::abs(sg1-sg2))>=255*sensitivity) {
             std::cout << "Compatible";
             }
@@ -114,9 +119,9 @@ switch (InputType) {
             std::cout << "Not Compatible";
             }
             break;
-            //sRGB - Blue-Yellow 
+            //Hex - Blue-Yellow 
             case 2:
-            std::cout << "Inorder to test compatability for Red-Green color-blindness we will only examine the Red and Green Axes:\n";
+            std::cout << "Inorder to test compatability for Blue-Yellow color-blindness we will only examine the Red and Green Axes:\n";
             if (std::abs(sr1-sr2)>=255*sensitivity || std::abs(sg1-sg2)>=255*sensitivity || (std::abs(sr1-sr2)+std::abs(sg1-sg2))>=255*sensitivity) {
             std::cout << "Compatible";
             }
