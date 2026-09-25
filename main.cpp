@@ -87,6 +87,7 @@ switch (InputType) {
     std::string StringG1 = Hex1.substr(2,2);
     std::string StringB1 = Hex1.substr(4,2);
 
+//This converrts the string segments into base 16 values
     sr1 = std::stoi(StringR1, 0, 16);
     sg1 = std::stoi(StringG1, 0, 16);
     sb1 = std::stoi(StringB1, 0, 16); 
