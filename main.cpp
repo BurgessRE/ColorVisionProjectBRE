@@ -1,140 +1,192 @@
+// Author: Ethan R. Burgess
+
 #include <string>
+#include <fstream>
 #include <iostream>
-#include <cmath>
-#include <iomanip>
+#include <vector>
+
+using namespace std;
+
+// Returns a success check on recieving the colors, pass-by-reference allows for transfering the colors as well.
+bool inputColor(string filename, int inputType, vector<int>& color);
+//Auxillary, converts for input color
+vector<int> hexToRgb(string hex);
+// calculates the differences so they may be assigned to the differences vector.
+vector<int> absoluteDifference(vector<int> color1, vector<int> color2);
 
 int main() {
-int sr1;
-int sg1;
-int sb1;
-int sr2;
-int sg2;
-int sb2;
-/*
-Commented out for initial deliverable, I want to eventually convert the sRGB and hex to linear rgb or a measurement that more accurately matches human vision so more meaningful analysis can be done. 
-double lr1;
-double lg1;
-double lb1;
-double lr2;
-double lg2;
-double lb2;
-*/
-double sensitivity = 2;
-int CBType;
-int InputType;
-std::string Hex1;
-std::string Hex2;
+    // Initialized to ensure while loop operates atleast once.
+    double sensitivity = 2;
+    int cbType;
+    // Colorblindness type
+    int inputType;
+    // Dictates if user is using a file with sRGB or Hex values
+    bool compatible = false;
+    // Indicates that the colors from the file were successfully pulled
+    bool fileAccessed = false;
+    // File to be accessed
+    string filename;
+    // vectors for color in format of RRR GGG BBB
+    vector<int> color1;
+    vector<int> color2;
+    // Vector giving absolute difference value for RRR GGG BBB
+    vector<int> differences;
 
-std::cout << "Hello, please specify the color blindness sensitivity percentage setting.\nFor more information enter 2\n";
-std::cin >> sensitivity;
-
-while (sensitivity >= 1 || sensitivity <=0) {
-
-    std::cout << "This setting sets a percentage threshhold for Red, Green, and Blue that will flag a poor visibility warning.\n Note for future versions: Traditional sRGB values are not linear and this program attempts to linearize them as part of the algorithm.\n This means values may not directly backflow to differences in RGB.\n";
-    std::cout << "Please enter a percent as a decimal, we recommend a minimum of 0.07.\n";
-    std::cin  >> sensitivity;
-}
-
-std::cout << "Color sensitivity set to " << sensitivity*100 << "%\n";
-
-do {
-std::cout << "What color blindness type are we testing for?\n 1 - Red-Green or Green-Red\n 2 - Blue-Yellow\n";
-std::cin >> CBType;
-} while (CBType != 1 && CBType != 2);
-
-do {
-std::cout << "Now we'll enter the colors, are we using sRGB or Hex?\n1 - sRGB\n2 - Hex\n";
-std::cin >> InputType;
-} while (InputType != 1 && InputType != 2);
-
-switch (InputType) {
-    //sRGB
-    case 1: {
-        std::cout << "Input your first color's RGB value as follows RR GG BB\n";
-        std::cin >> sr1 >> sg1 >> sb1;
-
-        std::cout << "Input your second color's RGB value as follows RR GG BB\n";
-        std::cin >> sr2 >> sg2 >> sb2;
-    }
-        switch (CBType) {
-            //sRGB-Red-Green
-            case 1:
-            std::cout << "Inorder to test compatability for Red-Green color-blindness we will only examine the Blue Axis:\n";
-            if (std::abs(sb1-sb2)>=255*sensitivity) {
-            std::cout << "Compatible";
-            }
-            else {
-            std::cout << "Not Compatible";
-            }
-            break;
-            //sRGB - Blue-Yellow 
-            case 2:
-            std::cout << "Inorder to test compatability for Blue-Yellow color-blindness we will only examine the Red and Green Axes:\n";
-            if (std::abs(sr1-sr2)>=255*sensitivity || std::abs(sg1-sg2)>=255*sensitivity || (std::abs(sr1-sr2)+std::abs(sg1-sg2))>=255*sensitivity) {
-            std::cout << "Compatible";
-            }
-            else {
-            std::cout << "Not Compatible";
-            }
-            break;
-            //sRGB error output
-            default:
-            std::cout << "Code recognizes you're in RGB but another error occured after that. My apologies";
-            break;
-}
-    break;
+    /*
+    Commented out for this version of deliverable, I want to eventually convert the sRGB and hex to linear rgb or a measurement that more accurately matches human vision so more meaningful analysis can be done. 
     
-    //Hex
-    case 2: {
-    std::cout << "Input your first color's Hex value, 6 digits, exclude #\n";
-    std::cin >> Hex1;
-    std::string StringR1 = Hex1.substr(0,2);
-    std::string StringG1 = Hex1.substr(2,2);
-    std::string StringB1 = Hex1.substr(4,2);
+    double lr1;
+    double lg1;
+    double lb1;
+    double lr2;
+    double lg2;
+    double lb2;
+    
+    */
 
-//This converrts the string segments into base 16 values
-    sr1 = std::stoi(StringR1, 0, 16);
-    sg1 = std::stoi(StringG1, 0, 16);
-    sb1 = std::stoi(StringB1, 0, 16); 
+    // This is setup to have user enter two as I wanted to maintain 1 as a valid input even if it would not be of much valuable, it effectively neccessitates monochrome.
+    cout << "Hello, please specify the color blindness sensitivity percentage setting.\nFor more information enter 2\n";
+    cin >> sensitivity;
 
-
-    std::cout << "Input your second color's Hex value\n";
-    std::cin >> Hex2;
-    std::string StringR2 = Hex2.substr(0,2);
-    std::string StringG2 = Hex2.substr(2,2);
-    std::string StringB2 = Hex2.substr(4,2);
-
-    sr2 = std::stoi(StringR2, 0, 16);
-    sg2 = std::stoi(StringG2, 0, 16);
-    sb2 = std::stoi(StringB2, 0, 16); 
-
-    switch(CBType) {
-            //Hex-Red-Green
-                case 1:
-            std::cout << "Inorder to test compatability for Red-Green color-blindness we will only examine the Blue Axis:\n";
-            if (std::abs(sb1-sb2)>=255*sensitivity) {
-            std::cout << "Compatible";
-            }
-            else {
-            std::cout << "Not Compatible";
-            }
-            break;
-            //Hex - Blue-Yellow 
-            case 2:
-            std::cout << "Inorder to test compatability for Blue-Yellow color-blindness we will only examine the Red and Green Axes:\n";
-            if (std::abs(sr1-sr2)>=255*sensitivity || std::abs(sg1-sg2)>=255*sensitivity || (std::abs(sr1-sr2)+std::abs(sg1-sg2))>=255*sensitivity) {
-            std::cout << "Compatible";
-            }
-            else {
-            std::cout << "Not Compatible";
-            }
-            break;
-            //hex error output
-            default:
-            std::cout << "Code recognizes you're in Hex but another error occured after that. My apologies";
-            break;            
+    while (sensitivity >= 1 || sensitivity <= 0) {
+        cout << "This setting sets a percentage threshhold for Red, Green, and Blue that will flag a poor visibility warning.\n";
+        cout << "Please enter a percent as a decimal, we recommend a minimum of 0.07.\n";
+        cin >> sensitivity;
     }
-}
-}
+
+    cout << "Color sensitivity set to " << sensitivity * 100 << "%\n";
+
+    do {
+        cout << "What color blindness type are we testing for?\n 1 - Red-Green or Green-Red\n 2 - Blue-Yellow\n";
+        cin >> cbType;
+    } while (cbType != 1 && cbType != 2);
+
+    do {
+        cout << "Now we'll read the colors from files, are the colors in your files written in sRGB or Hex?\n1 - sRGB\n2 - Hex\n";
+        cin >> inputType;
+    } while (inputType != 1 && inputType != 2);
+
+    if (inputType == 1) {
+        cout << "Please confirm that each file contains one color written as RRR GGG BBB before selection\n";
+    }
+    else {
+        cout << "Please confirm that each file contains one color written as 6 hex digits (exclude # and spaces) before selection\n";
+    }
+
+    for (int i = 0; i < 2; i++) {
+        do {
+            if (i == 0) {
+                cout << "Input the file name for your first color\n";
+                cin >> filename;
+                fileAccessed = inputColor(filename, inputType, color1);
+            }
+            else {
+                cout << "Input the file name for your second color\n";
+                cin >> filename;
+                fileAccessed = inputColor(filename, inputType, color2);
+            }
+
+            if (!fileAccessed) {
+                cout << "Couldn't read a color from " << filename << ", please try again.\n";
+            }
+        } while (!fileAccessed);
+    }
+    cout << "Color one's vector is: ";
+    for (int color : color1) {
+      cout << color << " ";
+    }
+
+    cout << endl;
+
+    cout << "Color two's vector is: ";
+    for (int color : color2) {
+      cout << color << " ";
+    }
+
+    cout << endl;
+
+    // Assigning the values to the differences vector
+    differences = absoluteDifference(color1, color2);
+
+    if (cbType == 1) {
+        cout << "Inorder to test compatability for Red-Green color-blindness we will only examine the Blue Axis:\n";
+        compatible = (differences[2] >= 255 * sensitivity);
+    }
+    else {
+        cout << "Inorder to test compatability for Blue-Yellow color-blindness we will only examine the Red and Green Axes:\n";
+        compatible = ((differences[0] + differences[1]) >= 255 * sensitivity);
+    }
+
+    if (compatible) {
+        cout << "Compatible\n";
+    }
+    else {
+        cout << "Not Compatible\n";
+    }
+
     return 0;
+}
+
+//handles inputting of colors through files
+bool inputColor(string filename, int inputType, vector<int>& color) {
+    int r;
+    int g;
+    int b;
+    bool success = false;
+    string hex = "";
+    ifstream file;
+
+    file.open(filename);
+
+    if (file.is_open()) {
+        if (inputType == 1) {
+            file >> r >> g >> b;
+            success = !file.fail();
+
+            if (success) {
+                color = {r, g, b};
+            }
+        }
+        else {
+            file >> hex;
+            success = !file.fail();
+
+            if (success) {
+                color = hexToRgb(hex);
+            }
+        }
+
+        file.close();
+    }
+
+    return success;
+}
+
+//Auxillary function for inputColor designed to convert from hex
+vector<int> hexToRgb(string hex) {
+    int r = 0;
+    int g = 0;
+    int b = 0;
+
+    r = stoi(hex.substr(0, 2), 0, 16);
+    g = stoi(hex.substr(2, 2), 0, 16);
+    b = stoi(hex.substr(4, 2), 0, 16);
+
+    return {r, g, b};
+}
+
+//calculates the differences
+vector<int> absoluteDifference(vector<int> color1, vector<int> color2) {
+    vector<int> difference;
+
+    for (int i = 0; i < 3; i++) {
+        if (color1[i] > color2[i]) {
+            difference.push_back(color1[i] - color2[i]);
+        }
+        else {
+            difference.push_back(color2[i] - color1[i]);
+        }
+    }
+
+    return difference;
 }
