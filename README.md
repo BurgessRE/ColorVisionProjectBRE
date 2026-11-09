@@ -2,6 +2,11 @@
 
 ## Description
 
+**version 2.0**
+
+The program has been updated to utilize functions rather than nested if and switch statements. This will help future scalability of the program. Additionally the program has been moved towards using files as inputs rather than user command line cin statements.
+
+
 **version 1.0**
 
 The program takes hex or rgb values and calculates colorblind distinguishable between two colors for red-green, green-red, and blue-yellow sever colorblindness.
